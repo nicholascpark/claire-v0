@@ -98,8 +98,8 @@ def main():
 
     USER_ID = "default_user"
 
-    st.set_page_config(page_title="Clear One Advantage AI", page_icon=None)
-    st.title("Clear One Advantage AI")
+    st.set_page_config(page_title="ClearOne Advantage AI", page_icon=None)
+    st.title("ClearOne Advantage AI")
 
     if 'generated' not in st.session_state:
         st.session_state['generated'] = []
