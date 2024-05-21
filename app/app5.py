@@ -99,7 +99,7 @@ def main():
     USER_ID = "default_user"
 
     st.set_page_config(page_title="ClearOne Advantage AI", page_icon=":robot:")
-    st.image("../data/COA_logo.png", use_column_width=True)
+    st.image("./COA_logo.png", use_column_width=True)
     st.title("ClearOne Advantage AI")
 
     if 'generated' not in st.session_state:
