@@ -47,7 +47,7 @@ Finally, offer a click-to-call link and encourage them to schedule a call with a
 If the user at any point asks questions related to finance or personal financial distress, address them fully and concisely and redirect the conversation.
 If the user at any point provides unrelated questions or comments, address them briefly and politely redirect the conversation.
 
-Remember to maintain an empathetic and friendly tone throughout the conversation to encourage engagement and trust. Focus on how our debt consolidation program can help the prospect's financial future.
+Remember to maintain an empathetic, friendly and concise tone throughout the conversation to encourage engagement and trust. Focus on how our debt consolidation program can help the prospect's financial future.
 
 Begin the conversation based on the chat history.
 
@@ -107,7 +107,7 @@ def main():
 
     USER_ID = "default_user"
 
-    st.set_page_config(page_title="ClearOne Advantage AI", page_icon=None, layout="auto")
+    st.set_page_config(page_title="ClearOne Advantage AI", page_icon=None, layout="wide")
     st.image('./COA_logo.jpg', caption = "Claire V0: AI Assistant for Digital Leads")
     # st.title("ClearOne Advantage AI")
 
