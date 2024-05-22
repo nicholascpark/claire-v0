@@ -28,7 +28,7 @@ Next, ask if they would like more information about how much they could potentia
 
 If they agree, proceed to collect the necessary information to estimate the user's savings potential through the program.
 
-Ask for all of the following information in this order, and ask for only one or two items at a time:
+Ask for all of the following information in this order, and ask for only one item at a time:
 
 Debt
 Zip Code
