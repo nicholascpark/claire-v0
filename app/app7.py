@@ -12,7 +12,7 @@ from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain.memory import ChatMessageHistory
 from session_manager import get_session_id, create_new_session
 
-llm = ChatOpenAI(model="gpt-3.5-turbo-0125", temperature = 0.5, max_tokens = 1000)
+llm = ChatOpenAI(model="gpt-3.5-turbo-0125", temperature = 0, max_tokens = 1000)
 
 sys_template = """
 
@@ -30,7 +30,7 @@ Next, ask if they would like more information about how much they could potentia
 
 If they agree, proceed to collect the necessary information to estimate the user's savings potential through the program.
 
-Warmly ask for all of the following information in this list, follow the exact order, and ask for only one item at a time, and clearly explain the need for the info to get the savings estimate.
+Warmly ask for all of the following information in this list, follow the exact order, and ask for only one item at a time, while explaining the importance of the info for the savings estimate.
 
 Debt
 Zip Code
@@ -139,6 +139,17 @@ def main():
     customer = st.session_state['customer']
     chain_with_message_history = st.session_state['chain_with_message_history']
 
+    # Add this block to generate and display the introductory message
+    if not st.session_state['generated']:
+        chain_with_message_history.invoke(
+            input = {"input": ""},
+            config = {"configurable": {"session_id": session_id}}
+        )
+        intro_message = chain_with_message_history.get_session_history(session_id).messages[1].content
+        # intro_message = "Hello! Thank you for reaching out. I'm Claire, a debt specialist at ClearOne Advantage. We have a proven track record of helping clients manage and reduce their debt effectively. To begin, can I get your name, please?"
+        st.session_state['past'].append("")
+        st.session_state['generated'].append(intro_message)
+
     # Create a container for the chat history
     chat_container = st.container()
 
@@ -166,8 +177,10 @@ def main():
             max_display = 100 # Number of latest messages to display
 
             for i in range(max(0, num_messages - max_display), num_messages):
-                message(st.session_state['past'][i], is_user=True, key=str(i) + '_user', avatar_style = 'shapes')
+                if i > 0:
+                    message(st.session_state['past'][i], is_user=True, key=str(i) + '_user', avatar_style = 'shapes')
                 message(st.session_state["generated"][i], key=str(i))
                 
+
 if __name__ == "__main__":
     main()
