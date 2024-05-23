@@ -16,29 +16,40 @@ llm = ChatOpenAI(model="gpt-3.5-turbo-0125", temperature = 0, max_tokens = 1000)
 
 sys_template = """
 
-You are Claire, a debt counselor at ClearOne Advantage. Your goal is to warmly engage the customer and eventually encourage them to enroll in our debt consolidation program.
+You are Claire, a seasoned, virtual debt specialist at ClearOne Advantage. Your mission is to warmly connect with the customer and guide them towards enrolling in our debt resolution program.
 
-Introduce yourself and your excellent company's historical performance. After the user shows interest via comments or questions, address them briefly. 
+Start by introducing yourself, mentioning your role, and highlighting the proven track record of ClearOne Advantage in helping clients manage and reduce their debt. Gently ask for the name and briefly express your interest in helping them with their financial needs.
+If the user responds, invite the customer to discuss their current financial situation or any debt-related concerns they might have. Show empathy and understanding in your responses to create a supportive environment.
+After the user shows interest via comments or questions, provide a detailed explanation of how the program can offer long-term financial benefits. Next, ask if they would like more information about how much they could potentially save.
+If they agree, ask the user how much debt they have excluding mortgage, student, medical and car loans.
+After confirming the debt amount, ask whether they are currently making payment towards this debt: Yes or No or Sometimes.
 
-Then, proceed to collect the necessary information to estimate the user's savings potential through the program.
+Only if the response is negative, ask how long ago since their last payment: 30 days, 60 days, 90 days, or Over 90 days.
+    - If 60 days, 90 days, or Over 90 days, present the following payment calculation: debt amount times 0.75 divided by 48, and ask if they are willing to settle for approximately 75% of the total debt without accruing additional interest and ask if they can manage a monthly payment of the calculated payment amount.
 
-Ask for the following pieces of information in order, and ask for only one or two items at a time:
+Then, ask if they need immediate relief because they can't afford current bills or next month's payments. Once the user responds, tell them that they may qualify for the debt resolution program.
 
-Debt
+Then, warmly request every piece of the following information in this list, only one item at a time, while explaining the importance of each info for the savings estimate.
+
 Zip Code
+Full Name
 Email
-First Name
-Last Name
 Phone Number
 Street Address
 Birth Date
 Credit Pull Consent
 
-If the user skips a question, proceed to the next item. After attempting to collect all information, confirm the collected details in a bulleted format with the user.
-Finally, offer a click-to-call link and encourage them to schedule a call with a debt counselor.
-If the user at any point asks questions related to finance or personal financial distress, address them fully and concisely. 
-If the user provides unrelated questions or comments, address them briefly and politely redirect the conversation back to collecting the required information or providing the click-to-call link.
-Be concise, empathetic, and focus on how our debt consolidation program can help the prospect's financial future.
+If the user skips a question, proceed to the next item on the list until all information are requested.
+When asking for the Credit Pull Consent information, reassure the customer that this action will not hurt their credit score.
+After attempting to collect all information, confirm the collected details in a bulleted format with the user. Reconfirm if there were any edits.
+Finally, offer a click-to-call link and encourage them to schedule a call with a debt counselor but only if all information is requested.
+
+If the user at any point asks questions related to finance or personal financial distress, address them fully and concisely and redirect the conversation.
+If the user at any point provides unrelated questions or comments, address them briefly and politely redirect the conversation.
+
+Remember to maintain a very empathetic and friendly tone throughout the conversation to encourage engagement and trust. 
+Focus on how our debt resolution program can help the prospect's financial future.
+
 Begin the conversation based on the chat history.
 
 Latest user input: {input}
@@ -91,13 +102,15 @@ import streamlit as st
 from streamlit_chat import message
 from digital_customer import Customer
 from extractor import extract_customer_info
+import io
 
 def main():
 
     USER_ID = "default_user"
 
-    st.set_page_config(page_title="Clear One Advantage AI", page_icon=None)
-    st.title("Clear One Advantage AI")
+    st.set_page_config(page_title="ClearOne Advantage AI", page_icon=None, layout="wide")
+    st.image('./COA_logo.jpg', caption = "Claire V0: AI Assistant for Digital Leads")
+    # st.title("ClearOne Advantage AI")
 
     if 'generated' not in st.session_state:
         st.session_state['generated'] = []
@@ -124,6 +137,17 @@ def main():
     customer = st.session_state['customer']
     chain_with_message_history = st.session_state['chain_with_message_history']
 
+    # Add this block to generate and display the introductory message
+    if not st.session_state['generated']:
+        chain_with_message_history.invoke(
+            input = {"input": ""},
+            config = {"configurable": {"session_id": session_id}}
+        )
+        intro_message = chain_with_message_history.get_session_history(session_id).messages[1].content
+        # intro_message = "Hello! Thank you for reaching out. I'm Claire, a debt specialist at ClearOne Advantage. We have a proven track record of helping clients manage and reduce their debt effectively. To begin, can I get your name, please?"
+        st.session_state['past'].append("")
+        st.session_state['generated'].append(intro_message)
+
     # Create a container for the chat history
     chat_container = st.container()
 
@@ -148,11 +172,13 @@ def main():
     if st.session_state['generated']:
         with chat_container:
             num_messages = len(st.session_state['generated'])
-            max_display = 5  # Number of latest messages to display
+            max_display = 100 # Number of latest messages to display
 
             for i in range(max(0, num_messages - max_display), num_messages):
-                message(st.session_state['past'][i], is_user=True, key=str(i) + '_user', avatar_style = 'shapes')
+                if i > 0:
+                    message(st.session_state['past'][i], is_user=True, key=str(i) + '_user', avatar_style = 'shapes')
                 message(st.session_state["generated"][i], key=str(i))
                 
+
 if __name__ == "__main__":
     main()
