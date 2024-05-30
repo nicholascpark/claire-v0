@@ -8,3 +8,4 @@ pydantic==1.*
 faiss-cpu
 tiktoken
 streamlit_chat
+numexpr
