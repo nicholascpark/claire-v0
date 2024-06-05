@@ -8,81 +8,68 @@ dotenv_path = Path('../.env')
 load_dotenv(dotenv_path=dotenv_path)
 from langchain_openai import ChatOpenAI
 from langchain_core.runnables.history import RunnableWithMessageHistory
-from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
-from langchain.memory import ChatMessageHistory
+# from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder, PromptTemplate
+from langchain.memory import ChatMessageHistory, ConversationBufferMemory
 from session_manager import get_session_id, create_new_session
-from langchain.chains import LLMMathChain
+from langchain.chains import LLMMathChain, APIChain, LLMChain
 from langchain.agents import Tool, load_tools, AgentExecutor, create_openai_tools_agent
+from prompts import api_response_prompt, api_url_prompt, main_prompt
+from api_docs import leads_api_docs
+import os
 
-llm = ChatOpenAI(model="gpt-3.5-turbo-0125", temperature = 0, max_tokens = 500)
+#############################################################################################################
+# Define base model
+#############################################################################################################
+
+llm = ChatOpenAI(model="gpt-3.5-turbo-0125", temperature = 0, max_tokens = 1000)
+
+#############################################################################################################
+# Define the math tool template
+#############################################################################################################
 
 llm_math = LLMMathChain(llm=llm)
+
 math_tool = Tool(
     name='Calculator',
     func=llm_math.run,
     description='Useful for when you need to answer questions about math.'
 )
-tools = [math_tool]
 
-sys_template = """
+#############################################################################################################
+# Define the API tool template
+#############################################################################################################
+                     
+# conversation_memory = ConversationBufferMemory(memory_key="chat_history",
+#                                                 return_messages=True,
+#                                                 max_history_length=10000
+#                                                 )
 
-You are Claire, a seasoned, virtual AI debt specialist at ClearOne Advantage. Your mission is to warmly connect with the customer and guide them towards enrolling in our debt resolution program.
+# llm_chain = LLMChain(llm=llm, prompt=main_prompt, memory=conversation_memory)
 
-Start by introducing yourself, mentioning your role, and highlighting the proven track record of ClearOne Advantage in helping clients manage and reduce their debt. Gently ask for the name and briefly express your interest in helping them with their financial needs.
-If the user responds, invite the customer to discuss their current financial situation or any debt-related concerns they might have. Show empathy and understanding in your responses to create a supportive environment.
-After the user shows interest via comments or questions, provide a detailed explanation of how the program can offer long-term financial benefits. Next, ask if they would like more information about how much they could potentially save.
-If they agree, ask the user how much debt they have excluding mortgage, student, medical and car loans.
-Confirm the debt amount given by the user, and then ask whether they are currently making payment towards this debt: Yes or No or Sometimes. 
-- If No no, ask how long ago since their last payment: 30 days, 60 days, 90 days, or Over 90 days.
-    - If 60 days, 90 days, or Over 90 days, use calculator tool to present the result of debt amount*0.75/48, and ask if they are willing to settle for approximately 75 percent of the total debt without accruing additional interest and ask if they can manage a monthly payment of the calculated payment amount.
-    - If 30 days, skip this question.
-- If Yes yes / Sometimes sometimes, skip this question.
+api_chain = APIChain.from_llm_and_api_docs(
+        llm=llm,
+        api_docs=leads_api_docs,
+        api_url_prompt=api_url_prompt,
+        api_response_prompt=api_response_prompt,
+        verbose=True,
+        limit_to_domains=[f"<{os.getenv("CLEARONE_LEADS_API_URL")}>"]
+    )
 
-Then, ask if they need immediate relief because they can't afford current bills or next month's payments. Once the user responds, tell them that they may qualify for the debt resolution program.
+lead_api_tool = Tool(
+        name="LeadsHandling",
+        description="Leads API tool for lead creation in Salesforce or credit pull of a lead for ClearOne Advantage.",
+        func=api_chain.run,
+    )
 
-Then, warmly request every piece of the following information in this list, only one item at a time, while explaining the importance of each info for the savings estimate.
+#############################################################################################################
+# Define the main prompt template
+#############################################################################################################
 
-Zip Code
-Full Name
-Email
-Phone Number
-Street Address
-Birth Date
-Credit Pull Consent
+tools = [math_tool, lead_api_tool]
+agent = create_openai_tools_agent(llm, tools, main_prompt)
+chain = AgentExecutor(agent=agent, tools=tools, verbose=True) | StrOutputParser()
 
-If the user skips a question, proceed to the next item on the list until all information are requested.
-When asking for the Credit Pull Consent information, reassure the customer that this action will not hurt their credit score.
-After attempting to collect all information, confirm the collected details in a bulleted format with the user. Reconfirm if there were any edits.
-Finally, offer a click-to-call link and encourage them to schedule a call with a debt counselor but only if all information is requested.
-Do not request any more information about the user after that point.
-If the user asks for estimation on the spot after providing the debt, use calculator tool to present the result of debt amount*0.75/48, and ask if they are willing to settle for approximately 75 percent of the total debt without accruing additional interest and ask if they can manage a monthly payment of the calculated payment amount.
-
-If the user at any point asks questions related to finance or personal financial distress, address them fully and concisely and redirect the conversation.
-If the user at any point provides unrelated questions or comments, address them briefly and politely redirect the conversation.
-
-Remember to maintain a very empathetic and friendly tone throughout the conversation to encourage engagement and trust.
-Focus on how our debt resolution program can help the prospect's financial future. 
-Avoid revealing that you are AI until explicitly asked. 
-Avoid any bold claims or guarantees about the program. 
-Ask only one question per response.
-
-Begin the conversation based on the chat history.
-Latest user input: {input}
-
-"""
-
-prompt = ChatPromptTemplate.from_messages(
-    [
-        ("system", sys_template),
-        MessagesPlaceholder(variable_name="chat_history"),
-        ("human", "{input}"),
-        MessagesPlaceholder(variable_name="agent_scratchpad"),
-
-    ]
-)
-
-agent = create_openai_tools_agent(llm, tools, prompt)
-chain = AgentExecutor(agent=agent, tools=tools, verbose=True)
+# chain = prompt | llm
 
 def invoke_chain(
         chain_with_message_history, 
@@ -124,7 +111,7 @@ import io
 
 def main():
 
-    USER_ID = "default_user2"
+    USER_ID = "default_user1"
 
     st.set_page_config(page_title="ClearOne Advantage AI", page_icon=None, layout="wide")
     st.image('./COA_logo.jpg', caption = "Claire V0: AI Assistant for Digital Leads")
@@ -163,7 +150,6 @@ def main():
             config = {"configurable": {"session_id": session_id}}
         )
         intro_message = chain_with_message_history.get_session_history(session_id).messages[1].content
-        # intro_message = "Hello! Thank you for reaching out. I'm Claire, a debt specialist at ClearOne Advantage. We have a proven track record of helping clients manage and reduce their debt effectively. To begin, can I get your name, please?"
         st.session_state['past'].append("")
         st.session_state['generated'].append(intro_message)
 

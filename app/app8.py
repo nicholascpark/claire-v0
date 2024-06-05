@@ -17,11 +17,13 @@ from langchain.agents import Tool, load_tools, AgentExecutor, create_openai_tool
 llm = ChatOpenAI(model="gpt-3.5-turbo-0125", temperature = 0, max_tokens = 1000)
 
 llm_math = LLMMathChain(llm=llm)
+
 math_tool = Tool(
     name='Calculator',
     func=llm_math.run,
     description='Useful for when you need to answer questions about math.'
 )
+
 tools = [math_tool]
 
 
