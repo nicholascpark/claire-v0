@@ -181,7 +181,7 @@ def main():
         if submit_button and user_input:
             output = invoke_chain(chain_with_message_history, user_input, session_id)
             st.session_state['past'].append(user_input)
-            st.session_state['generated'].append(output["output"])
+            st.session_state['generated'].append(output["output"].replace("*", "").replace("_", "").replace("$", "\$"))
 
             latest_chat_str = collect_chat_history(chain_with_message_history, session_id)
             new_customer_info = extract_customer_info(latest_chat_str)
