@@ -154,6 +154,7 @@ def display_chat_history(chat_container):
 
 def process_user_input(chain_with_message_history, session_id, user_input, chat_container):
     st.session_state['past'].append(user_input)
+    user_input = sanitize_output(user_input)
     with chat_container:
         st.write(f"<span style='color: hotpink;'>**You:**</span> {user_input}", unsafe_allow_html=True)
 
