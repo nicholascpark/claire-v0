@@ -145,6 +145,7 @@ def generate_intro_message(session_id, chain_with_message_history):
 def display_chat_history(chat_container):
     with chat_container:
         for i, (user_msg, bot_msg) in enumerate(zip(st.session_state['past'], st.session_state['generated'])):
+            user_msg = sanitize_output(user_msg)
             if i > 0:
                 st.write(f"<span style='color: hotpink;'>**You:**</span> {user_msg}", unsafe_allow_html=True)
             cleaned_bot_msg = sanitize_output(bot_msg)
