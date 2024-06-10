@@ -114,7 +114,10 @@ def set_streamlit_config():
     st.image('./COA_logo.jpg', caption="Claire v0: AI Assistant for Digital Leads")
 
 def sanitize_output(text):
-    return text.replace("*", "").replace("_", "").replace("$", "\$")
+    text = text.replace("*", "").replace("_", "")
+    pattern = r'(?<!\\)\$'
+    replaced_text = re.sub(pattern, r'\\$', text)
+    return replaced_text
 
 def initialize_session_state(USER_ID):
     if 'generated' not in st.session_state:
@@ -147,16 +150,16 @@ def display_chat_history(chat_container):
         for i, (user_msg, bot_msg) in enumerate(zip(st.session_state['past'], st.session_state['generated'])):
             user_msg = sanitize_output(user_msg)
             if i > 0:
-                st.write(f"<span style='color: hotpink;'>**You:**</span> {user_msg}", unsafe_allow_html=True)
-            cleaned_bot_msg = sanitize_output(bot_msg)
-            # cleaned_bot_msg = bot_msg
-            st.write(f"<span style='color: turquoise;'>**Claire:**</span> {cleaned_bot_msg}", unsafe_allow_html=True)
+                st.markdown(f"<span style='color: hotpink;'>**You:**</span> {user_msg}", unsafe_allow_html=True)
+            bot_msg = sanitize_output(bot_msg)
+            st.markdown(f"<span style='color: turquoise;'>**Claire:**</span> {bot_msg}", unsafe_allow_html=True)
+
 
 def process_user_input(chain_with_message_history, session_id, user_input, chat_container):
     st.session_state['past'].append(user_input)
     user_input = sanitize_output(user_input)
     with chat_container:
-        st.write(f"<span style='color: hotpink;'>**You:**</span> {user_input}", unsafe_allow_html=True)
+        st.markdown(f"<span style='color: hotpink;'>**You:**</span> {user_input}", unsafe_allow_html=True)
 
     with st.spinner("Claire is typing..."):
         output = invoke_chain(chain_with_message_history, user_input, session_id)
@@ -169,7 +172,7 @@ def process_user_input(chain_with_message_history, session_id, user_input, chat_
         st.session_state['customer'].update_customer_from_string_non_empty(new_customer_info)
 
         with chat_container:
-            st.write(f"<span style='color: turquoise;'>**Claire:**</span> {cleaned_output}", unsafe_allow_html=True)
+            st.markdown(f"<span style='color: turquoise;'>**Claire:**</span> {cleaned_output}", unsafe_allow_html=True)
 
 def main():
 
@@ -196,6 +199,7 @@ def main():
 
         if submit_button and user_input:
             process_user_input(chain_with_message_history, session_id, user_input, chat_container)
+
 
 
 if __name__ == "__main__":
