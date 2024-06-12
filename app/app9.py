@@ -13,6 +13,7 @@ from langchain.memory import ChatMessageHistory, ConversationBufferMemory
 from session_manager import get_session_id, create_new_session
 from langchain.chains import LLMMathChain, APIChain
 from langchain.agents import Tool, load_tools, AgentExecutor, create_openai_tools_agent
+from langchain_community.utilities.wolfram_alpha import WolframAlphaAPIWrapper
 from prompts import api_response_prompt, api_url_prompt, main_prompt
 from api_docs import leads_api_docs
 import os
