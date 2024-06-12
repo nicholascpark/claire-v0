@@ -13,32 +13,38 @@ class Customer(BaseModel):
     # 2. Each field has a `description` -- this description is used by the LLM.
     # Having a good description can help improve extraction results.
     
-    debt: Optional[str] = Field(
+    Debt: Optional[str] = Field(
         default=None, description="The total debt of the customer"
     )
-    zip_code: Optional[str] = Field(
+    Zip: Optional[str] = Field(
         default=None, description="The zip code of the customer"
     )
-    email: Optional[str] = Field(
+    Email: Optional[str] = Field(
         default=None, description="The email address of the customer."
     )
-    first_name: Optional[str] = Field(
+    FirstName: Optional[str] = Field(
         default=None, description="The first name of the customer."
     )
-    last_name: Optional[str] = Field(
+    LastName: Optional[str] = Field(
         default=None, description="The last name of the customer."
     )
-    phone_number: Optional[str] = Field(
+    Phone: Optional[str] = Field(
         default=None, description="The phone number of the customer.",
     )
-    street_address: Optional[str] = Field(
+    Address: Optional[str] = Field(
         default=None, description="The street_address of the customer."
     )
-    birth_date: Optional[str] = Field(
+    DateOfBirth: Optional[str] = Field(
         default=None, description="The birth date of the customer."
     )
-    credit_pull_consent: Optional[str] = Field(
+    CreditPullConsent: Optional[str] = Field(
         default=None, description="The credit pull consent of the customer."
+    )
+    PhoneContactConsent: Optional[str] = Field(
+        default=None, description="The phone contact consent of the customer."
+    )
+    LeadId: Optional[str] = Field(
+        default=199, description="The lead id of the customer."
     )
 
     def update_customer_from_string(self, customer_str: str) -> None:
@@ -78,6 +84,9 @@ class Customer(BaseModel):
     def add_customer_info(self, field: str, value: str) -> None:
         setattr(self, field, value)
 
+    def convert_to_json(self) -> dict:
+        return self.dict()
+
 
 def create_customer_from_string(customer_str: str) -> Customer:
     # Parse the customer string into a dictionary
@@ -103,7 +112,8 @@ if __name__ == "__main__":
         phone_number="1234567890",
         street_address="123 Main St",
         birth_date="01/01/1990",
-        credit_pull_consent="Yes"
+        credit_pull_consent="Yes",
+        phone_contact_consent="Yes",
+        lead_id = 199
     )   
 
-    print(check_empty_fields(user_peronal_details))

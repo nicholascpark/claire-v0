@@ -65,68 +65,68 @@ leads_api_docs = {
         "content_type": "application/json"
       }
     },
-    "/affiliate/creditpull": {
-      "method": "POST",
-      "description": "Perform a credit pull for an affiliate lead.",
-      "parameters": {
-        "FirstName": {
-          "type": "string",
-          "description": "The lead's first name."
-        },
-        "LastName": {
-          "type": "string",
-          "description": "The lead's last name."
-        },
-        "SSN": {
-          "type": "string",
-          "description": "The lead's Social Security Number in XXX-XX-XXXX format."
-        },
-        "Address": {
-          "type": "string",
-          "description": "The lead's address."
-        },
-        "City": {
-          "type": "string",
-          "description": "The lead's city."
-        },
-        "State": {
-          "type": "string",
-          "description": "The lead's state."
-        },
-        "Zip": {
-          "type": "string",
-          "description": "The lead's zip code."
-        },
-        "Phone": {
-          "type": "string",
-          "description": "The lead's phone number."
-        },
-        "DateOfBirth": {
-          "type": "string",
-          "description": "The lead's date of birth in YYYY-MM-DD format."
-        },
-        "Email": {
-          "type": "string",
-          "description": "The lead's email address."
-        },
-        "CheckCreditReportCache": {
-          "type": "boolean",
-          "description": "Whether to check the credit report cache."
-        },
-        "LeadRecordId": {
-          "type": "string",
-          "description": "The Salesforce record ID for the lead."
-        },
-        "AffiliateName": {
-          "type": "string",
-          "description": "The name of the affiliate."
-        }
-      },
-      "response": {
-        "description": "A JSON object containing credit pull result.",
-        "content_type": "application/json"
-      }
-    }
+    # "/affiliate/creditpull": {
+    #   "method": "POST",
+    #   "description": "Perform a credit pull for an affiliate lead.",
+    #   "parameters": {
+    #     "FirstName": {
+    #       "type": "string",
+    #       "description": "The lead's first name."
+    #     },
+    #     "LastName": {
+    #       "type": "string",
+    #       "description": "The lead's last name."
+    #     },
+    #     "SSN": {
+    #       "type": "string",
+    #       "description": "The lead's Social Security Number in XXX-XX-XXXX format."
+    #     },
+    #     "Address": {
+    #       "type": "string",
+    #       "description": "The lead's address."
+    #     },
+    #     "City": {
+    #       "type": "string",
+    #       "description": "The lead's city."
+    #     },
+    #     "State": {
+    #       "type": "string",
+    #       "description": "The lead's state."
+    #     },
+    #     "Zip": {
+    #       "type": "string",
+    #       "description": "The lead's zip code."
+    #     },
+    #     "Phone": {
+    #       "type": "string",
+    #       "description": "The lead's phone number."
+    #     },
+    #     "DateOfBirth": {
+    #       "type": "string",
+    #       "description": "The lead's date of birth in YYYY-MM-DD format."
+    #     },
+    #     "Email": {
+    #       "type": "string",
+    #       "description": "The lead's email address."
+    #     },
+    #     "CheckCreditReportCache": {
+    #       "type": "boolean",
+    #       "description": "Whether to check the credit report cache."
+    #     },
+    #     "LeadRecordId": {
+    #       "type": "string",
+    #       "description": "The Salesforce record ID for the lead."
+    #     },
+    #     "AffiliateName": {
+    #       "type": "string",
+    #       "description": "The name of the affiliate."
+    #     }
+    #   },
+    #   "response": {
+    #     "description": "A JSON object containing credit pull result.",
+    #     "content_type": "application/json"
+    #   }
+    # }
   }
 }
 

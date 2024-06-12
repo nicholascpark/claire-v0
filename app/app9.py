@@ -16,6 +16,7 @@ from langchain.agents import Tool, load_tools, AgentExecutor, create_openai_tool
 from prompts import api_response_prompt, api_url_prompt, main_prompt
 from api_docs import leads_api_docs
 import os
+import logging
 
 #############################################################################################################
 # Define base model
@@ -57,7 +58,7 @@ api_chain = APIChain.from_llm_and_api_docs(
 
 lead_api_tool = Tool(
         name="LeadsHandling",
-        description="Leads API tool for lead creation in Salesforce or credit pull of a lead for ClearOne Advantage.",
+        description="Leads API tool for lead creation in Salesforce for ClearOne Advantage.",
         func=api_chain.run,
     )
 
@@ -78,10 +79,14 @@ def invoke_chain(
         session_id: str = None
     ):
 
-    return chain_with_message_history.invoke(
-        input = {"input": input_message},
-        config = {"configurable": {"session_id": session_id}}
-    )
+    try:
+        return chain_with_message_history.invoke(
+            input = {"input": input_message},
+            config = {"configurable": {"session_id": session_id}}
+        )
+    except Exception as e:
+        # return {"output": error_handler(e), "error": True}
+        return invoke_chain(chain_with_message_history, input_message + " ", session_id)
 
 
 def collect_chat_history(chain_with_message_history, session_id: str):
@@ -99,6 +104,11 @@ def collect_latest_chat(chain_with_message_history, session_id: str, n=2):
         ]
     )
     return latest_chat_str
+
+def error_handler(error):
+    """Log the error and return a generic error message to the user."""
+    logging.error(f"An error occurred: {error}")
+    return "I'm having a bit of trouble right now. Let's try something else!"
 
 #############################################################################################################
 # Define the Streamlit app
