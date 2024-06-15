@@ -22,13 +22,13 @@ Ensure the every step is followed in sequence and maintain an empathetic tone th
 
 5. Information Collection:
    - If they agree, inform them that you will need to gain some information to provide an accurate savings estimate. Avoid sounding pushy or intrusive and maintain a friendly tone.
-   - Request the following information one-by-one for estimating savings potential, explaining the importance of each piece thoroughly and harmlessly:
+   - Ask each of the items below one by one for estimating savings potential, explaining the relevance of each piece thoroughly and harmlessly:
      - Debt
      - Zip Code
      - Full Name
-     - Email
-     - Phone Number
+     - Email and Phone Number
      - Street Address
+     - City and State
      - Birth Date
      - Credit Pull Consent (assure that this will not affect their credit score)
      - Contact Consent (Phone & Email; ask for permission to contact via phone)
@@ -46,7 +46,7 @@ Ensure the every step is followed in sequence and maintain an empathetic tone th
    - End the conversation on a positive note unless they have further questions.
 
 Additional Guidelines:
-- Lead Creation: Use the Leads API to create a lead in Salesforce with the collected customer information.
+- Timely Lead Creation: Only after step 5, send POST request in Leads API to create a lead in Salesforce with the collected customer information.
 - Building Rapport: Show warmth and love by using the customer's name and mimicking their tone.
 - One Question per Response: Ask for one piece of information at a time to avoid overwhelming the customer.
 - Responsive Interaction: Address any finance-related questions fully and concisely, and steer the conversation back towards assistance.
@@ -69,32 +69,40 @@ main_prompt = ChatPromptTemplate.from_messages(
     ]
 )
 
-api_url_template = """
-Given the following API Documentation for ClearOne Advantage's leads API: {api_docs}
-Your task is to construct the most efficient API URL to
-answer the user's question, ensuring the call is optimized to include only necessary information.
-Question: {question}
-API URL:
-"""
-api_url_prompt = PromptTemplate(input_variables=['api_docs', 
-                                                 'customer',
-                                                 'question'],
-                                template=api_url_template)
 
+API_URL_PROMPT_TEMPLATE = """You are given the below API Documentation:
+{api_docs}
+Using this documentation, generate the full API url to call for answering the user question.
+You should build the API url in order to get a response that is as short as possible, while still getting the necessary information to answer the question. Pay attention to deliberately exclude any unnecessary pieces of data in the API call.
+You should extract the request METHOD from doc (POST), and generate the BODY data in JSON format according to complete collected info. The BODY data cannot be empty.
 
-api_response_template = """
-With the API Documentation for ClearOne Advantage's official API: {api_docs} 
-and the specific user question: {question} in mind,
-and given this API URL: {api_url} for querying, here is the 
-response from ClearOne Advantage's API: {api_response}. 
-Please provide a summary that directly addresses the user's question, 
-omitting technical details like response format, and 
-focusing on delivering the answer with clarity and conciseness, 
-as if ClearOne Advantage itself is providing this information.
-Summary:
+Question:{question}
 """
-api_response_prompt = PromptTemplate(input_variables=['api_docs', 
-                                                      'question', 
-                                                      'api_url',
-                                                      'api_response'],
-                                     template=api_response_template)
+
+API_REQUEST_PROMPT_TEMPLATE = API_URL_PROMPT_TEMPLATE + """Output the API url, METHOD and BODY, join them with `|`. DO NOT GIVE ANY EXPLANATION."""
+
+API_REQUEST_PROMPT = PromptTemplate(
+    input_variables=[
+        "api_docs",
+        "question",
+    ],
+    template=API_REQUEST_PROMPT_TEMPLATE,
+)
+
+API_RESPONSE_PROMPT_TEMPLATE = (
+    API_URL_PROMPT_TEMPLATE
+    + """API url: {api_url}
+
+Here is the response from the API:
+
+{api_response}
+
+Summarize this response to answer the original question.
+
+Summary:"""
+)
+
+API_RESPONSE_PROMPT = PromptTemplate(
+    input_variables=["api_docs", "question", "api_url", "api_response"],
+    template=API_RESPONSE_PROMPT_TEMPLATE,
+)

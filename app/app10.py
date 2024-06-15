@@ -14,10 +14,13 @@ from session_manager import get_session_id, create_new_session
 from langchain.chains import LLMMathChain, APIChain
 from langchain.agents import Tool, load_tools, AgentExecutor, create_openai_tools_agent
 from langchain_community.utilities.wolfram_alpha import WolframAlphaAPIWrapper
-from prompts import api_response_prompt, api_url_prompt, main_prompt
+from prompts import API_REQUEST_PROMPT, API_RESPONSE_PROMPT
+from prompts import main_prompt
 from api_docs import leads_api_docs
 import os
 import logging
+from PowerfulAPIChain import APowerfulAPIChain
+import random
 
 #############################################################################################################
 # Define base model
@@ -40,40 +43,40 @@ math_tool = Tool(
 #############################################################################################################
 # Define the API tool template
 #############################################################################################################
-                     
-# conversation_memory = ConversationBufferMemory(memory_key="chat_history",
-#                                                 return_messages=True,
-#                                                 max_history_length=10000
-#                                                 )
 
-# llm_chain = LLMChain(llm=llm, prompt=main_prompt, memory=conversation_memory)
-
-api_chain = APIChain.from_llm_and_api_docs(
+api_chain = APowerfulAPIChain.from_llm_and_api_docs(
         llm=llm,
         api_docs=leads_api_docs,
-        api_url_prompt=api_url_prompt,
-        api_response_prompt=api_response_prompt,
+        api_url_prompt=API_REQUEST_PROMPT,
+        api_response_prompt=API_RESPONSE_PROMPT,
         headers = {"APIKEY" : f"{os.getenv("CLEARONE_LEADS_API_KEY")}" },
         verbose=True,
-        limit_to_domains=[f"{os.getenv("CLEARONE_LEADS_API_URL")}"]
+        limit_to_domains=["https://carbon.clearoneadvantage.com/api/lead/create?detailedResponse=true"]
     )
 
 lead_api_tool = Tool(
         name="LeadsHandling",
-        description="Leads API tool for lead creation in Salesforce for ClearOne Advantage after collecting all the customer info.",
+        description="Once all the customer info is collected, this makes a POST request to the ClearOne Advantage API to create a new lead in Salesforce.",
         func=api_chain.run,
     )
+
+obtain_customer_info_tool = Tool(
+    name="CustomerInfo",
+    description="Extracts customer information from the conversation.",
+    func=lambda x: st.session_state['customer'].dict()
+)
 
 #############################################################################################################
 # Define the main prompt template
 #############################################################################################################
 
-# tools = [math_tool, lead_api_tool]
-tools = [math_tool]
+tools = [math_tool, lead_api_tool]
+# tools = [math_tool]
 agent = create_openai_tools_agent(llm, tools, main_prompt)
 chain = AgentExecutor(agent=agent, tools=tools, verbose=True)
 
 # chain = prompt | llm
+punctuations = ['!', '"', "'", '(', ')', ',', '-', ':', ';', '?', '[', ']', ''', ''', '"', '"', '–', '—', '…', '«', '»', '•', '․', '‥', '…']
 
 def invoke_chain(
         chain_with_message_history, 
@@ -82,13 +85,17 @@ def invoke_chain(
     ):
 
     try:
+        print(f"input_message: {input_message}")
         return chain_with_message_history.invoke(
             input = {"input": input_message},
             config = {"configurable": {"session_id": session_id}}
         )
     except Exception as e:
+        print(e)
         # return {"output": error_handler(e), "error": True}
-        return invoke_chain(chain_with_message_history, input_message + " ", session_id)
+        random_punctuation = random.choice(punctuations)
+        input_message = input_message[:-1] if input_message[-1] in punctuations else input_message
+        return invoke_chain(chain_with_message_history, input_message + random_punctuation, session_id)
 
 
 def collect_chat_history(chain_with_message_history, session_id: str):
