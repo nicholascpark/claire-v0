@@ -16,7 +16,7 @@ from langchain.agents import Tool, load_tools, AgentExecutor, create_openai_tool
 from langchain_community.utilities.wolfram_alpha import WolframAlphaAPIWrapper
 from prompts import API_REQUEST_PROMPT, API_RESPONSE_PROMPT
 from prompts import main_prompt
-from api_docs import leads_api_docs
+from api_docs import lead_create_api_docs
 import os
 import logging
 from PowerfulAPIChain import APowerfulAPIChain
@@ -44,9 +44,9 @@ math_tool = Tool(
 # Define the API tool template
 #############################################################################################################
 
-api_chain = APowerfulAPIChain.from_llm_and_api_docs(
+lead_create_api_chain = APowerfulAPIChain.from_llm_and_api_docs(
         llm=llm,
-        api_docs=leads_api_docs,
+        api_docs=lead_create_api_docs,
         api_url_prompt=API_REQUEST_PROMPT,
         api_response_prompt=API_RESPONSE_PROMPT,
         headers = {"APIKEY" : f"{os.getenv("CLEARONE_LEADS_API_KEY")}" },
@@ -54,10 +54,10 @@ api_chain = APowerfulAPIChain.from_llm_and_api_docs(
         limit_to_domains=["https://carbon.clearoneadvantage.com/api/lead/create?detailedResponse=true"]
     )
 
-lead_api_tool = Tool(
-        name="LeadsHandling",
+lead_create_api_tool = Tool(
+        name="LeadCreateAPI",
         description="Once all the customer info is collected, this makes a POST request to the ClearOne Advantage API to create a new lead in Salesforce.",
-        func=api_chain.run,
+        func=lead_create_api_chain.run,
     )
 
 obtain_customer_info_tool = Tool(
@@ -70,13 +70,13 @@ obtain_customer_info_tool = Tool(
 # Define the main prompt template
 #############################################################################################################
 
-tools = [math_tool, lead_api_tool]
+tools = [math_tool, lead_create_api_tool]
 # tools = [math_tool]
 agent = create_openai_tools_agent(llm, tools, main_prompt)
 chain = AgentExecutor(agent=agent, tools=tools, verbose=True)
 
 # chain = prompt | llm
-punctuations = ['!', '"', "'", '(', ')', ',', '-', ':', ';', '?', '[', ']', ''', ''', '"', '"', '–', '—', '…', '«', '»', '•', '․', '‥', '…']
+punctuations = ['!', '"', "'", '(', ')', ',', '-', ':', ';', '?', '[', ']', ''', ''', '"', '"', '…', '«', '»', '•', '․', '‥', '…']
 
 def invoke_chain(
         chain_with_message_history, 

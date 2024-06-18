@@ -19,17 +19,10 @@ class APowerfulAPIChain(APIChain):
 
         api_url, request_method, body = request_info.split('|')
 
-        # self.callback_manager.on_text(
-        #     api_url, color="green", end="\n", verbose=self.verbose
-        # )
-        # get the method with same name
         request_func = getattr(self.requests_wrapper, request_method.lower())
 
         api_response = request_func(api_url, json.loads(body))
 
-        # self.callback_manager.on_text(
-        #     api_response, color="yellow", end="\n", verbose=self.verbose
-        # )
         # answer = self.api_answer_chain.predict(
         #     question=question,
         #     api_docs=self.api_docs,

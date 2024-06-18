@@ -14,7 +14,7 @@ from session_manager import get_session_id, create_new_session
 from langchain.chains import LLMMathChain, APIChain
 from langchain.agents import Tool, load_tools, AgentExecutor, create_openai_tools_agent
 from langchain_community.utilities.wolfram_alpha import WolframAlphaAPIWrapper
-from prompts import api_response_prompt, api_url_prompt, main_prompt
+from prompts import main_prompt
 from api_docs import leads_api_docs
 import os
 import logging
@@ -48,21 +48,21 @@ math_tool = Tool(
 
 # llm_chain = LLMChain(llm=llm, prompt=main_prompt, memory=conversation_memory)
 
-api_chain = APIChain.from_llm_and_api_docs(
-        llm=llm,
-        api_docs=leads_api_docs,
-        api_url_prompt=api_url_prompt,
-        api_response_prompt=api_response_prompt,
-        headers = {"APIKEY" : f"{os.getenv("CLEARONE_LEADS_API_KEY")}" },
-        verbose=True,
-        limit_to_domains=[f"{os.getenv("CLEARONE_LEADS_API_URL")}"]
-    )
+# api_chain = APIChain.from_llm_and_api_docs(
+#         llm=llm,
+#         api_docs=leads_api_docs,
+#         api_url_prompt=api_url_prompt,
+#         api_response_prompt=api_response_prompt,
+#         headers = {"APIKEY" : f"{os.getenv("CLEARONE_LEADS_API_KEY")}" },
+#         verbose=True,
+#         limit_to_domains=[f"{os.getenv("CLEARONE_LEADS_API_URL")}"]
+#     )
 
-lead_api_tool = Tool(
-        name="LeadsHandling",
-        description="Leads API tool for lead creation in Salesforce for ClearOne Advantage after collecting all the customer info.",
-        func=api_chain.run,
-    )
+# lead_api_tool = Tool(
+#         name="LeadsHandling",
+#         description="Leads API tool for lead creation in Salesforce for ClearOne Advantage after collecting all the customer info.",
+#         func=api_chain.run,
+#     )
 
 #############################################################################################################
 # Define the main prompt template

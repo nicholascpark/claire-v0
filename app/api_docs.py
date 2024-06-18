@@ -1,6 +1,6 @@
 import json
 
-leads_api_docs = """
+lead_create_api_docs = """
 BASE URL: https://carbon.clearoneadvantage.com/api/lead/
 
 The API endpoint /create?detailedResponse=true accepts the following parameters:
@@ -13,13 +13,13 @@ Parameters:
 2. Debt (number, required): The total debt amount for the lead.
 3. FirstName (string, required): The lead's first name.
 4. LastName (string, required): The lead's last name.
-5. Address (string, required): The lead's address.
-6. City (string, required): The lead's city.
-7. State (string, required): The lead's state.
-8. Zip (string, required): The lead's zip code.
-9. Phone (string, required): The lead's phone number.
-10. DateOfBirth (string, required): The lead's date of birth in MM-DD-YYYY format.
-11. Email (string, Optional): The lead's email address.
+5. Address (string, Optional): The lead's address.
+6. Zip (string, required): The lead's zip code.
+7. Phone (string, required): The lead's phone number.
+8. DateOfBirth (string, Optional): The lead's date of birth in MM-DD-YYYY format.
+9. Email (string, required): The lead's email address.
+10. City (string, required): The lead's city.
+11. State (string, Optional): The lead's state.
 
 Response:
 Description: A JSON object indicating the result of lead creation.
@@ -37,126 +37,73 @@ Example of a successful response:
 }
 """
 
-# leads_api_docs = {
-#   "base_url": "<https://carbon.clearoneadvantage.com/api/lead/>",
-#   "endpoints": {
-#     "/create?detailedResponse=true": {
-#       "method": "POST",
-#       "description": "Create a new lead in Salesforce.",
-#       "parameters": {
-#         "LeadId": {
-#           "type": "integer",
-#           "description": "Always 197. The unique identifier for the lead."
-#         },
-#         "Debt": {
-#           "type": "number",
-#           "description": "The total debt amount for the lead."
-#         },
-#         "FirstName": {
-#           "type": "string",
-#           "description": "The lead's first name."
-#         },
-#         "LastName": {
-#           "type": "string",
-#           "description": "The lead's last name."
-#         },
-#         "Address": {
-#           "type": "string",
-#           "description": "The lead's address."
-#         },
-#         "City": {
-#           "type": "string",
-#           "description": "The lead's city."
-#         },
-#         "State": {
-#           "type": "string",
-#           "description": "The lead's state."
-#         },
-#         "Zip": {
-#           "type": "string",
-#           "description": "The lead's zip code."
-#         },
-#         "Phone": {
-#           "type": "string",
-#           "description": "The lead's phone number."
-#         },
-#         "DateOfBirth": {
-#           "type": "string",
-#           "description": "The lead's date of birth in MM-DD-YYYY format."
-#         },
-#         "Email": {
-#           "type": "string",
-#           "description": "The lead's email address."
-#         }
-#       },
-#       "response": {
-#         "description": "A JSON object indicating the result of lead creation.",
-#         "content_type": "application/json"
-#       }
-#     },
-#     "/affiliate/creditpull": {
-#       "method": "POST",
-#       "description": "Perform a credit pull for an affiliate lead.",
-#       "parameters": {
-#         "FirstName": {
-#           "type": "string",
-#           "description": "The lead's first name."
-#         },
-#         "LastName": {
-#           "type": "string",
-#           "description": "The lead's last name."
-#         },
-#         "SSN": {
-#           "type": "string",
-#           "description": "The lead's Social Security Number in XXX-XX-XXXX format."
-#         },
-#         "Address": {
-#           "type": "string",
-#           "description": "The lead's address."
-#         },
-#         "City": {
-#           "type": "string",
-#           "description": "The lead's city."
-#         },
-#         "State": {
-#           "type": "string",
-#           "description": "The lead's state."
-#         },
-#         "Zip": {
-#           "type": "string",
-#           "description": "The lead's zip code."
-#         },
-#         "Phone": {
-#           "type": "string",
-#           "description": "The lead's phone number."
-#         },
-#         "DateOfBirth": {
-#           "type": "string",
-#           "description": "The lead's date of birth in YYYY-MM-DD format."
-#         },
-#         "Email": {
-#           "type": "string",
-#           "description": "The lead's email address."
-#         },
-#         "CheckCreditReportCache": {
-#           "type": "boolean",
-#           "description": "Whether to check the credit report cache."
-#         },
-#         "LeadRecordId": {
-#           "type": "string",
-#           "description": "The Salesforce record ID for the lead."
-#         },
-#         "AffiliateName": {
-#           "type": "string",
-#           "description": "The name of the affiliate."
-#         }
-#       },
-#       "response": {
-#         "description": "A JSON object containing credit pull result.",
-#         "content_type": "application/json"
-#       }
-#     }
-#   }
-# }
+credit_pull_api_docs = """
+BASE URL: https://carbon.clearoneadvantage.com/api/affiliate/creditpull
 
-# leads_api_docs = json.dumps(leads_api_docs, indent=2)
+The API endpoint accepts the following parameters:
+
+Method: POST
+Description: Pull credit information for a prospect.
+
+Parameters:
+1. FirstName (string, required): Prospect's first name.
+2. LastName (string, required): Prospect's last name.
+3. SSN (string, required): Social Security Number. Either SSN or Address and DOB need to be provided for Credit Pull.
+4. Address (string, required): Prospect's address.
+5. City (string, required): City name.
+6. State (string, required): Two-letter state code.
+7. Zip (string, required): 5- or 9-digit zip code.
+8. Phone (string, Optional): Prospect's phone number.
+9. DateOfBirth (string, required): Prospect's date of birth in YYYY-MM-DD format.
+10. Email (string, Optional): Prospect's email address.
+11. CheckCreditReportCache (boolean, Optional): Checks COA’s database if a credit report already exists. Default is False.
+12. LeadRecordId (string, Optional): COA’s identifier for lead.
+13. AffiliateName (string, Optional): Name of the affiliate company.
+
+Response:
+Description: A JSON object indicating the result of the credit pull.
+Content-Type: application/json
+
+Example of a successful response:
+{
+    "Data": {
+        "CreditPullId": "VKMJ84RD80UODxVmjo8KTRco7p07rmcUYgGB5O75hoqpgiyHZddw3V3iALPO39vfRB1OZwFrFd58l8Bn8t6HLKU5qwkAPFskGIO80UmJJkTl16QFyttMKONeEr5icvM8",
+        "SearchRequestId": 0,
+        "SearchResultId": 0,
+        "LeadRecordId": "-230735",
+        "DatePulled": "2023-06-29T13:38:51.491",
+        "CreditBureauProcessor": "Experian",
+        "InformationalMessages": [],
+        "TotalEligibleDebt": 6373.0,
+        "AvgDaysDelinquentEligibleDebt": 0
+    },
+    "Success": true,
+    "Errors": []
+}
+
+Example of a 400 error response:
+{
+    "Success": false,
+    "Errors": [
+        "The Address field is required.",
+        "The Zip field is required."
+    ]
+}
+
+There are also times where the credit pull will provide results of NO-HIT (Equifax) and No Record Found (Experian):
+{
+    "Data": {
+        "CreditPullId": "VKMJ84RD80UODxVmjo8KTRco7p07rmcUYgGB5O75hoqpgiyHZddw3V3iALPO39vfRB1OZwFrFd58l8Bn8t6HLKU5qwkAPFskGIO80UmJJkTl16QFyttMKONeEr5icvM8",
+        "SearchRequestId": 0,
+        "SearchResultId": 0,
+        "DatePulled": "0001-01-01T00:00:00-05:00",
+        "CreditBureauProcessor": "Equifax",
+        "InformationalMessages": []
+    },
+    "Success": false,
+    "Errors": [
+        "Experian - Please verify the client demographic info and re-try the pull after editing the fields in the credit pull page if there are corrections.",
+        "Equifax - NO-HIT"
+    ]
+}
+"""

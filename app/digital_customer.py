@@ -34,6 +34,12 @@ class Customer(BaseModel):
     Address: Optional[str] = Field(
         default=None, description="The street_address of the customer."
     )
+    # City: Optional[str] = Field(
+    #     default=None, description="The city of the customer."
+    # )
+    # State: Optional[str] = Field(
+    #     default=None, description="The state of the customer."
+    # )
     DateOfBirth: Optional[str] = Field(
         default=None, description="The birth date of the customer."
     )
