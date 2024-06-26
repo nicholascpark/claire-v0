@@ -26,7 +26,7 @@ import random
 # Define base model
 #############################################################################################################
 
-llm = ChatOpenAI(model="gpt-3.5-turbo-0125", temperature = 0, max_tokens = 1000)
+llm = ChatOpenAI(model="gpt-4o-2024-05-13", temperature=0)
 
 #############################################################################################################
 # Define the math tool template
@@ -65,6 +65,12 @@ obtain_customer_info_tool = Tool(
     description="Extracts customer information from the conversation.",
     func=lambda x: st.session_state['customer'].dict()
 )
+
+check_customer_status_tool = Tool(
+    name="CustomerStatus",
+    description="Checks the status of the customer.",
+    func=lambda x: st.session_state['customer'].dict()
+)    
 
 #############################################################################################################
 # Define the main prompt template
@@ -218,8 +224,6 @@ def main():
 
         if submit_button and user_input:
             process_user_input(chain_with_message_history, session_id, user_input, chat_container)
-
-
 
 if __name__ == "__main__":
     main()
