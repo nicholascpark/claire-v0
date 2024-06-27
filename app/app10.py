@@ -26,7 +26,7 @@ import random
 # Define base model
 #############################################################################################################
 
-llm = ChatOpenAI(model="gpt-4o-2024-05-13", temperature=0)
+llm = ChatOpenAI(model="gpt-3.5-turbo-0125", temperature = 0, max_tokens = 2000)
 
 #############################################################################################################
 # Define the math tool template
