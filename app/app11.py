@@ -60,27 +60,27 @@ lead_create_api_tool = Tool(
         func=lead_create_api_chain.run,
     )
 
-# credit_pull_api_chain = APowerfulAPIChain.from_llm_and_api_docs(
-#         llm=llm,
-#         api_docs=credit_pull_api_docs,
-#         api_url_prompt=API_REQUEST_PROMPT,
-#         api_response_prompt=API_RESPONSE_PROMPT,
-#         headers = {"APIKEY" : f"{os.getenv("CLEARONE_LEADS_API_KEY")}" },
-#         verbose=True,
-#         limit_to_domains=["https://carbon.clearoneadvantage.com/api/affiliate/creditpull"]
-#     )           
+credit_pull_api_chain = APowerfulAPIChain.from_llm_and_api_docs(
+        llm=llm,
+        api_docs=credit_pull_api_docs,
+        api_url_prompt=API_REQUEST_PROMPT,
+        api_response_prompt=API_RESPONSE_PROMPT,
+        headers = {"APIKEY" : f"{os.getenv("CLEARONE_LEADS_API_KEY")}" },
+        verbose=True,
+        limit_to_domains=["https://carbon.clearoneadvantage.com/api/affiliate/creditpull"]
+    )           
 
-# credit_pull_api_tool = Tool(
-#         name="CreditPullAPI",
-#         description="Once all the required customer info is collected, this makes a POST request to the ClearOne Advantage API to pull the customer's credit report.",
-#         func=credit_pull_api_chain.run,
-#     )
+credit_pull_api_tool = Tool(
+        name="CreditPullAPI",
+        description="Once all the required customer info is collected, this makes a POST request to the ClearOne Advantage API to pull the customer's credit report.",
+        func=credit_pull_api_chain.run,
+    )
 
 #############################################################################################################
 # Define the main prompt template
 #############################################################################################################
 
-tools = [math_tool, lead_create_api_tool]#, credit_pull_api_tool]
+tools = [math_tool, lead_create_api_tool, credit_pull_api_tool]
 # tools = [math_tool]
 agent = create_openai_tools_agent(llm, tools, main_prompt)
 chain = AgentExecutor(agent=agent, tools=tools, verbose=True)

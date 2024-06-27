@@ -9,7 +9,7 @@ Method: POST
 Description: Create a new lead in Salesforce.
 
 Parameters:
-1. LeadId (integer, required): Always 197. The unique identifier for the lead.
+1. LeadId (integer, required): Always 999. The unique identifier for the lead.
 2. Debt (number, required): The total debt amount for the lead.
 3. FirstName (string, required): The lead's first name.
 4. LastName (string, required): The lead's last name.

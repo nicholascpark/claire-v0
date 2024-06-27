@@ -28,9 +28,9 @@ Ensure the every step is followed in sequence and maintain an empathetic tone th
    - These are the required details:
      - Debt
      - Zip Code
-     - Full Name
+     - Full Name (as it appears on official documents)
      - Email and Phone Number
-     - Street Address
+     - Street Address including City and State
      - Birth Date
      - Credit Pull Consent (assure that this will not affect their credit score)
      - Contact Consent (Phone & Email; ask for permission to contact via phone)
